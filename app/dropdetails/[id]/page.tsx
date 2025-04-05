@@ -14,7 +14,7 @@ import { Zap, Wallet, MapPin, Timer, Sparkles, TrendingUp, Users, Calendar, Chec
 import { Drop, drops } from "@/lib/drops"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { MiniKit } from "@worldcoin/minikit-js"
+import { MiniKit, VerifyCommandInput, VerificationLevel, ISuccessResult } from "@worldcoin/minikit-js"
 import { sendWLDABI } from "@/lib/abi"
 import { parseEther } from 'viem'
 import { SelfAppBuilder, getUniversalLink, countries } from "@selfxyz/core"
@@ -30,6 +30,7 @@ export default function DropDetailsPage() {
   const [isJoining, setIsJoining] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isWorldVerified, setIsWorldVerified] = useState(false)
 
   useEffect(() => {
     async function fetchDrop() {
@@ -60,6 +61,40 @@ export default function DropDetailsPage() {
       setIsLoading(false)
     }
   }, [params.id])
+
+  const verifyPayload: VerifyCommandInput = {
+    action: 'get-drop',
+    verification_level: VerificationLevel.Orb,
+  }
+
+  const handleVerify = async () => {
+    try {
+      if (!MiniKit.isInstalled()) return
+      const { finalPayload } = await MiniKit.commandsAsync.verify(verifyPayload)
+
+      if (finalPayload.status === 'error') {
+        console.log('Error payload', finalPayload)
+        return
+      }
+
+      const verifyResponse = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payload: finalPayload as ISuccessResult,
+          action: 'get-drop',
+        }),
+      })
+
+      const verifyResponseJson = await verifyResponse.json()
+      if (verifyResponseJson.status === 200) {
+        console.log('Verification success!')
+        setIsWorldVerified(true)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const handleSelf = async () => {
     setIsVerifying(true)
@@ -105,6 +140,7 @@ export default function DropDetailsPage() {
       setShowAgeDialog(true)
       return
     }
+    await handleVerify()
     
     try {
       setIsJoining(true)
