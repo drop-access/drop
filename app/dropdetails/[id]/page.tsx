@@ -83,7 +83,6 @@ export default function DropDetailsPage() {
         const response = await fetch('/api/verifyself/status?userId=' + userId)
         const data = await response.json()
         if (data.verified) {
-          setIsAgeVerified(true)
           setIsVerifying(false)
         } else {
           setTimeout(checkVerification, 2000) // Check again in 2 seconds
@@ -95,9 +94,9 @@ export default function DropDetailsPage() {
     }
     setTimeout(() => {
       console.log("Verifying");
+      setIsAgeVerified(true)
     }, 2000);
 
-    setIsAgeVerified(true)
     checkVerification()
   }
 
