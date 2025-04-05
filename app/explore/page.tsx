@@ -3,6 +3,13 @@
 import { Card } from "@/components/ui/card"
 import { Star, Timer, Sparkles, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function ExplorePage() {
   const featuredDrops = [
@@ -35,14 +42,35 @@ export default function ExplorePage() {
     },
     {
       id: "4",
-      title: "Rolex Submariner",
-      image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa",
-      participants: 34567,
-      category: "Watches",
-      time: "3d 15h",
+      title: "WorldIsland",
+      image: "/worldisland.png",
+      participants: "129",
+      category: "Pop Up Cities",
+      time: "1d",
       trending: true,
     },
+    {
+      id: "5",
+      title: "ZuTaipei",
+      image: "/zutaipei.png",
+      participants: "19",
+      category: "Pop Up Cities",
+      time: "1d",
+      trending: true,
+    }
   ]
+
+  // Filter only trending drops
+  const trendingDrops = featuredDrops.filter(drop => drop.trending)
+
+  // Group drops by category
+  const dropsByCategory = trendingDrops.reduce((acc, drop) => {
+    if (!acc[drop.category]) {
+      acc[drop.category] = []
+    }
+    acc[drop.category].push(drop)
+    return acc
+  }, {} as Record<string, typeof featuredDrops>)
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
@@ -56,55 +84,70 @@ export default function ExplorePage() {
                 Trending Drops
               </h1>
               <p className="text-muted-foreground">
-                {featuredDrops.length} exclusive drops available
+                {trendingDrops.length} exclusive drops available
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredDrops.map((drop) => (
-              <Link href={`/drops/${drop.id}`} key={drop.id}>
-                <Card className="group overflow-hidden bg-card/50 backdrop-blur-sm border-primary/10 event hover:border-primary/30 transition-all duration-300">
-                  <div className="aspect-[16/9] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-transparent z-10" />
-                    <img
-                      src={drop.image}
-                      alt={drop.title}
-                      className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 left-4 flex gap-2 z-20">
-                      <div className="px-3 py-1 bg-background/30 backdrop-blur-md rounded-full text-xs font-medium flex items-center gap-1">
-                        <Timer className="w-3 h-3" />
-                        {drop.time}
-                      </div>
-                      {drop.trending && (
-                        <div className="px-3 py-1 bg-primary/20 backdrop-blur-md rounded-full text-xs font-medium flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" />
-                          Trending
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute top-4 right-4 z-20">
-                      <div className="px-3 py-1 bg-background/30 backdrop-blur-md rounded-full text-xs font-medium">
-                        {drop.category}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                        {drop.title}
-                      </h3>
-                      <Sparkles className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
-                    </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <Star className="h-4 w-4" />
-                      <span>{drop.participants.toLocaleString()} interested</span>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
+          <div className="space-y-12">
+            {Object.entries(dropsByCategory).map(([category, drops]) => (
+              <div key={category} className="space-y-4">
+                <h2 className="text-2xl font-semibold text-primary">{category}</h2>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {drops.map((drop) => (
+                      <CarouselItem key={drop.id} className="md:basis-1/2">
+                        <Link href={`/drops/${drop.id}`}>
+                          <Card className="group overflow-hidden bg-card/50 backdrop-blur-sm border-primary/10 event hover:border-primary/30 transition-all duration-300">
+                            <div className="aspect-[16/9] relative overflow-hidden">
+                              <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-transparent z-10" />
+                              <img
+                                src={drop.image}
+                                alt={drop.title}
+                                className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute top-4 left-4 flex gap-2 z-20">
+                                <div className="px-3 py-1 bg-background/30 backdrop-blur-md rounded-full text-xs font-medium flex items-center gap-1">
+                                  <Timer className="w-3 h-3" />
+                                  {drop.time}
+                                </div>
+                                {drop.trending && (
+                                  <div className="px-3 py-1 bg-primary/20 backdrop-blur-md rounded-full text-xs font-medium flex items-center gap-1">
+                                    <TrendingUp className="w-3 h-3" />
+                                    Trending
+                                  </div>
+                                )}
+                              </div>
+                              <div className="absolute top-4 right-4 z-20">
+                                <div className="px-3 py-1 bg-background/30 backdrop-blur-md rounded-full text-xs font-medium">
+                                  {drop.category}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                                  {drop.title}
+                                </h3>
+                                <Sparkles className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Star className="h-4 w-4" />
+                                <span>{drop.participants.toLocaleString()} interested</span>
+                              </div>
+                            </div>
+                          </Card>
+                        </Link>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-2" />
+                  <CarouselNext className="right-2" />
+                </Carousel>
+              </div>
             ))}
+            <br></br>
+            <br></br>
           </div>
         </div>
       </div>
