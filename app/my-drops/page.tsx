@@ -34,9 +34,10 @@ export default function MyDropsPage() {
             Start creating your first drop and watch the magic happen
           </p>
           <Link href="/create">
-            <Button className="bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
-              <Sparkles className="w-4 h-4 mr-2 group-hover:text-primary transition-colors" />
-              Create Your First Drop
+            <Button className="bg-primary/10 hover:bg-primary/20  backdrop-blur-sm border border-primary/20 group">
+              <Sparkles className="w-4 h-4 mr-2  group-hover:text-primary transition-colors" />
+
+              <p className="text-white">Create Your First Drop</p>
             </Button>
           </Link>
         </Card>

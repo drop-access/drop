@@ -6,9 +6,46 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar, ImagePlus, Sparkles } from "lucide-react"
 import { useState } from "react"
+import { MiniKit, VerifyCommandInput, VerificationLevel, ISuccessResult } from '@worldcoin/minikit-js'
+
+
 
 export default function CreatePage() {
   const [isUploading, setIsUploading] = useState(false)
+  const [isVerified, setIsVerified] =  useState(false)
+
+  const verifyPayload: VerifyCommandInput = {
+    action: 'create-drop',
+    verification_level: VerificationLevel.Orb,
+  }
+
+  const handleVerify = async () => {
+    if (!MiniKit.isInstalled()) {
+      return
+    }
+    const {finalPayload} = await MiniKit.commandsAsync.verify(verifyPayload)
+      if (finalPayload.status === 'error') {
+        return console.log('Error payload', finalPayload)
+      }
+  
+      // Verify the proof in the backend
+      const verifyResponse = await fetch('/api/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        payload: finalPayload as ISuccessResult, 
+        action: 'create-drop',
+      }),
+    })
+  
+    const verifyResponseJson = await verifyResponse.json()
+    if (verifyResponseJson.status === 200) {
+      console.log('Verification success!')
+      setIsVerified(true)
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
@@ -79,7 +116,11 @@ export default function CreatePage() {
               </Button>
             </div>
 
-            <Button className="w-full bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
+            <Button onClick={() => {
+              if(!isVerified) {
+              handleVerify()
+              }
+            }} className="w-full bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
               <Sparkles className="w-4 h-4 mr-2 group-hover:text-primary transition-colors" />
               Create Drop
             </Button>

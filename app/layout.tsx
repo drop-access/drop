@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { FooterNav } from '@/components/footer-nav';
+import MiniKitProvider from '@/components/minikit-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <MiniKitProvider>
       <body className={`${inter.className} overflow-x-hidden`}>
         <ThemeProvider
           attribute="class"
@@ -32,6 +34,7 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
       </body>
+      </MiniKitProvider>
     </html>
   );
 }
