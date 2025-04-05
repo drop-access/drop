@@ -27,7 +27,7 @@ export function FooterNav() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed bottom-0 py-2 left-0 right-0 border-t bg-background/80 backdrop-blur-lg">
+    <div className="fixed bottom-0 pb-2 left-0 right-0 border-t bg-background/40 backdrop-blur-sm">
       <nav className="flex items-center justify-around max-w-md mx-auto">
         {navigation.map(({ href, label, icon: Icon }) => (
           <Link

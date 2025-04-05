@@ -88,11 +88,12 @@ export default function ExplorePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+      <img src="/banner.jpg"></img>
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
       <div className="relative">
         <div className="container mx-auto p-4 pt-6">
           <div className="flex items-center gap-4 mb-8">
-            <div className="h-12 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
+            <div className="h-14 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
             <div className="flex-1">
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 via-primary to-neutral-400">
                 Trending Drops
@@ -100,8 +101,10 @@ export default function ExplorePage() {
               <p className="text-muted-foreground">
                 {trendingCount} exclusive drops available
               </p>
+              
             </div>
-            <div className="w-48">
+          </div>
+          <div className="mt-3 w-55">
               <Select 
                 value={selectedLocation} 
                 onValueChange={(value: string) => setSelectedLocation(value)}
@@ -119,7 +122,7 @@ export default function ExplorePage() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
+            <br></br>
 
           <div className="space-y-12">
             {Object.entries(dropsByCategory).map(([category, drops]) => (

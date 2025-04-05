@@ -112,7 +112,7 @@ export default function MyDropsPage() {
       <div className="relative">
         <div className="container mx-auto p-4 pt-6">
           <div className="flex items-center gap-4 mb-8">
-            <div className="h-12 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
+            <div className="h-20 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
             <div>
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 via-primary to-neutral-400">
                 My Drops
@@ -128,29 +128,12 @@ export default function MyDropsPage() {
             </div>
           </div>
 
-          <Tabs defaultValue="created" className="space-y-6">
+          <Tabs defaultValue="joined" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="created">Created ({createdDrops.length})</TabsTrigger>
               <TabsTrigger value="joined">Joined ({joinedDrops.length})</TabsTrigger>
+              <TabsTrigger value="created">Created ({createdDrops.length})</TabsTrigger>
             </TabsList>
-            <TabsContent value="created" className="space-y-6">
-              {createdDrops.length === 0 ? (
-                <div className="text-center text-muted-foreground py-12">
-                  <p>You haven't created any drops yet.</p>
-                  <Link href="/create">
-                    <Button className="mt-4">Create Your First Drop</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Link href="/create">
-                    <Button className="mt-4">      Create a new Drop     </Button>
-                  </Link>                  {createdDrops.map((drop) => (
-                    <DropCard key={drop.id} drop={drop} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+            
             <TabsContent value="joined" className="space-y-6">
               {joinedDrops.length === 0 ? (
                 <div className="text-center text-muted-foreground py-12">
@@ -162,6 +145,25 @@ export default function MyDropsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {joinedDrops.map((drop) => (
+                    <DropCard key={drop.id} drop={drop} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="created" className="space-y-6">
+              {createdDrops.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12">
+                  <p>You haven't created any drops yet.</p>
+                  <Link href="/create">
+                    <Button className="mt-4">Create Your First Drop</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Link href="/create" className="mt-4 col-span-full">
+                    <Button className="w-full">Create a new Drop</Button>
+                  </Link>
+                  {createdDrops.map((drop) => (
                     <DropCard key={drop.id} drop={drop} />
                   ))}
                 </div>

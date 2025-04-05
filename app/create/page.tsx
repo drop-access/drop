@@ -242,7 +242,7 @@ export default function CreatePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block">Price (in USD)</label>
+            <label className="text-sm font-medium mb-2 block">Price (in WLD)</label>
             <Input
               type="number"
               value={price}
