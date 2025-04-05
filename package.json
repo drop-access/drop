@@ -50,6 +50,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
+    "eruda": "^3.4.1",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.1",
     "input-otp": "^1.2.4",
@@ -71,6 +72,7 @@
     "utf-8-validate": "^6.0.5",
     "uuid": "^11.1.0",
     "vaul": "^0.9.9",
+    "viem": "^2.25.0",
     "zod": "^3.23.8"
   }
 }

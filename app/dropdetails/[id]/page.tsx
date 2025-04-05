@@ -15,6 +15,10 @@ import { Drop, drops } from "@/lib/drops"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { MiniKit } from "@worldcoin/minikit-js"
+import { sendWLDABI } from "@/lib/abi"
+import { parseEther } from 'viem'
+import { SelfAppBuilder, getUniversalLink, countries } from "@selfxyz/core"
+import { v4 } from "uuid"
 
 export default function DropDetailsPage() {
   const params = useParams()
@@ -55,6 +59,26 @@ export default function DropDetailsPage() {
     }
   }, [params.id])
 
+  const handleSelf = async () => {
+  const userId = v4();
+  const selfApp = new SelfAppBuilder({
+    appName: "Drop",
+    scope: "drop",
+    endpoint: `https://2b49-111-235-226-130.ngrok-free.app/api/verifyself/`,
+    logoBase64: "https://pluspng.com/img-png/images-owls-png-hd-owl-free-download-png-png-image-485.png",
+    // userIdType: 'hex',
+    userId: userId,
+    disclosures: {
+      minimumAge: 20,
+      excludedCountries: [countries.FRANCE],
+    },
+    // devMode: true,
+
+  }).build();
+  const deeplink = getUniversalLink(selfApp);
+  window.open(deeplink, '_blank')
+}
+
   const handleDropIn = async () => {
     if (drop?.ageRestriction && !isAgeVerified) {
       setShowAgeDialog(true)
@@ -63,6 +87,29 @@ export default function DropDetailsPage() {
     
     try {
       setIsJoining(true)
+
+        const {finalPayload} = await MiniKit.commandsAsync.sendTransaction({
+          transaction: [
+            {
+              address: '0x2cFc85d8E48F8EAB294be644d9E25C3030863003', // world coin token
+              abi: sendWLDABI,
+              functionName: 'transfer',
+              args: ['0x9c193649611f2379f10b1b558cc48301c581544d', parseEther(drop!.price.toString())], // To Whom
+            },
+          ],
+        })
+        const check = await fetch('/api/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload: finalPayload })
+        })
+        console.log(finalPayload)
+      
+
+      if (finalPayload.status === "error") {
+        console.error("Error minting tokens:", finalPayload);
+        return;
+      } 
       const response = await fetch('/api/join-drop', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +131,7 @@ export default function DropDetailsPage() {
   const handleAgeVerify = () => {
     setIsAgeVerified(true)
     setShowAgeDialog(false)
-    handleDropIn()
+    handleSelf()
   }
 
   if (isLoading) {
@@ -212,7 +259,6 @@ export default function DropDetailsPage() {
                 </Card>
               </div>
 
-              
 
               <Button
                 onClick={handleDropIn}

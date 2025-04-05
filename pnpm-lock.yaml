@@ -128,6 +128,9 @@ dependencies:
   embla-carousel-react:
     specifier: ^8.3.0
     version: 8.6.0(react@18.2.0)
+  eruda:
+    specifier: ^3.4.1
+    version: 3.4.1
   eslint:
     specifier: 8.49.0
     version: 8.49.0
@@ -191,6 +194,9 @@ dependencies:
   vaul:
     specifier: ^0.9.9
     version: 0.9.9(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
+  viem:
+    specifier: ^2.25.0
+    version: 2.25.0(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@6.0.5)(zod@3.24.2)
   zod:
     specifier: ^3.23.8
     version: 3.24.2
@@ -2919,6 +2925,10 @@ packages:
 
   /emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
+    dev: false
+
+  /eruda@3.4.1:
+    resolution: {integrity: sha512-RmaO5yD97URY/9Q0lye3cmmNPoXNKreeePIw7c/zllbscR92CjGFZFuQ70+0fLIvLcKW3Xha8DS8NFhmeNbEBQ==}
     dev: false
 
   /es-abstract@1.23.9:

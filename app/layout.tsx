@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { FooterNav } from '@/components/footer-nav';
 import MiniKitProvider from '@/components/minikit-provider';
+import dynamic from "next/dynamic";
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -15,9 +17,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
+  const ErudaProvider = dynamic(
+    () => import("../components/Eruda").then((c) => c.ErudaProvider),
+    {
+      ssr: false,
+    }
+  );
   return (
     <html lang="en" suppressHydrationWarning>
 

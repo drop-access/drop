@@ -143,8 +143,9 @@ export default function MyDropsPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Button className="mt-4">Create a new Drop</Button>
-                  {createdDrops.map((drop) => (
+                  <Link href="/create">
+                    <Button className="mt-4">      Create a new Drop     </Button>
+                  </Link>                  {createdDrops.map((drop) => (
                     <DropCard key={drop.id} drop={drop} />
                   ))}
                 </div>
