@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
 
   const newDrop = {
-    id: uuidv4(),
+    id: (drops.length + 1).toString(),
     title: body.title,
     description: body.description,
     image: body.image,
@@ -18,6 +18,6 @@ export async function POST(req: NextRequest) {
   }
 
   drops.push(newDrop)
-
+  console.log(drops)
   return NextResponse.json({ status: 200, drop: newDrop })
 }

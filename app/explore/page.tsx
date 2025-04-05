@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Star, Timer, Sparkles, TrendingUp } from "lucide-react"
+import { Drop } from "@/lib/drops"
 import Link from "next/link"
 import {
   Carousel,
@@ -10,67 +11,62 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { useEffect, useState } from "react"
 
 export default function ExplorePage() {
-  const featuredDrops = [
-    {
-      id: "1",
-      title: "Supreme x Nike SB Dunk",
-      image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a",
-      participants: 25678,
-      category: "Sneakers",
-      time: "2d 5h",
-      trending: true,
-    },
-    {
-      id: "2",
-      title: "Tomorrowland 2024",
-      image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7",
-      participants: 45123,
-      category: "Events",
-      time: "5d 12h",
-      trending: true,
-    },
-    {
-      id: "3",
-      title: "Apple Vision Pro",
-      image: "https://images.unsplash.com/photo-1626218174358-7769486c4b79",
-      participants: 89012,
-      category: "Tech",
-      time: "1d 8h",
-      trending: false,
-    },
-    {
-      id: "4",
-      title: "WorldIsland",
-      image: "/worldisland.png",
-      participants: "129",
-      category: "Pop Up Cities",
-      time: "1d",
-      trending: true,
-    },
-    {
-      id: "5",
-      title: "ZuTaipei",
-      image: "/zutaipei.png",
-      participants: "19",
-      category: "Pop Up Cities",
-      time: "1d",
-      trending: true,
-    }
-  ]
+  const [isLoading, setIsLoading] = useState(true)
+  const [dropsByCategory, setDropsByCategory] = useState<Record<string, Drop[]>>({})
+  const [trendingCount, setTrendingCount] = useState(0)
 
-  // Filter only trending drops
-  const trendingDrops = featuredDrops.filter(drop => drop.trending)
+  useEffect(() => {
+    async function fetchDrops() {
+      try {
+        const response = await fetch('/api/get-drops')
+        const data = await response.json()
+        
+        // Filter only trending drops
+        const trendingDrops = data.drops.filter((drop: Drop) => drop.trending)
+        setTrendingCount(trendingDrops.length)
 
-  // Group drops by category
-  const dropsByCategory = trendingDrops.reduce((acc, drop) => {
-    if (!acc[drop.category]) {
-      acc[drop.category] = []
+        // Group drops by category
+        const grouped = trendingDrops.reduce((acc: Record<string, Drop[]>, drop: Drop) => {
+          if (!acc[drop.category]) {
+            acc[drop.category] = []
+          }
+          acc[drop.category].push(drop)
+          return acc
+        }, {})
+
+        setDropsByCategory(grouped)
+      } catch (error) {
+        console.error('Error fetching drops:', error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    acc[drop.category].push(drop)
-    return acc
-  }, {} as Record<string, typeof featuredDrops>)
+
+    fetchDrops()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
+        <div className="relative">
+          <div className="container mx-auto p-4 pt-6">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-12 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
+              <div>
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 via-primary to-neutral-400">
+                  Loading Trending Drops...
+                </h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-background">
@@ -84,10 +80,12 @@ export default function ExplorePage() {
                 Trending Drops
               </h1>
               <p className="text-muted-foreground">
-                {trendingDrops.length} exclusive drops available
+                {trendingCount} exclusive drops available
               </p>
             </div>
           </div>
+
+
 
           <div className="space-y-12">
             {Object.entries(dropsByCategory).map(([category, drops]) => (

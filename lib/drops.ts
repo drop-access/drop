@@ -1,4 +1,4 @@
-type Drop = {
+export type Drop = {
     id: string
     title: string
     description: string
@@ -9,5 +9,8 @@ type Drop = {
     trending: boolean
   }
   
-  export const drops: Drop[] = []
+  declare global {
+    var _drops: Drop[] | undefined
+  }
   
+  export const drops: Drop[] = global._drops ?? (global._drops = [])
