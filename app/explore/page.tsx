@@ -1,7 +1,7 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Star, Timer, Sparkles, TrendingUp } from "lucide-react"
+import { Star, Timer, Sparkles, TrendingUp, MapPin } from "lucide-react"
 import { Drop } from "@/lib/drops"
 import Link from "next/link"
 import {
@@ -11,12 +11,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useEffect, useState } from "react"
 
 export default function ExplorePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [dropsByCategory, setDropsByCategory] = useState<Record<string, Drop[]>>({})
   const [trendingCount, setTrendingCount] = useState(0)
+  const [selectedLocation, setSelectedLocation] = useState<string>("all")
+  const [locations, setLocations] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchDrops() {
@@ -24,8 +33,17 @@ export default function ExplorePage() {
         const response = await fetch('/api/get-drops')
         const data = await response.json()
         
+        // Get unique locations
+        const uniqueLocations = Array.from(new Set(data.drops.map((drop: Drop) => drop.location || "Online"))) as string[]
+        setLocations(["all", ...uniqueLocations])
+        
+        // Filter drops by location if selected
+        const filteredDrops = selectedLocation === "all" 
+          ? data.drops
+          : data.drops.filter((drop: Drop) => drop.location === selectedLocation)
+
         // Filter only trending drops
-        const trendingDrops = data.drops.filter((drop: Drop) => drop.trending)
+        const trendingDrops = filteredDrops.filter((drop: Drop) => drop.trending)
         setTrendingCount(trendingDrops.length)
 
         // Group drops by category
@@ -46,7 +64,7 @@ export default function ExplorePage() {
     }
 
     fetchDrops()
-  }, [])
+  }, [selectedLocation])
 
   if (isLoading) {
     return (
@@ -75,7 +93,7 @@ export default function ExplorePage() {
         <div className="container mx-auto p-4 pt-6">
           <div className="flex items-center gap-4 mb-8">
             <div className="h-12 w-1 bg-gradient-to-b from-primary/50 to-accent/50 rounded-full" />
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-200 via-primary to-neutral-400">
                 Trending Drops
               </h1>
@@ -83,9 +101,25 @@ export default function ExplorePage() {
                 {trendingCount} exclusive drops available
               </p>
             </div>
+            <div className="w-48">
+              <Select 
+                value={selectedLocation} 
+                onValueChange={(value: string) => setSelectedLocation(value)}
+              >
+                <SelectTrigger>
+                  <MapPin className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Filter by location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((loc: string) => (
+                    <SelectItem key={loc} value={loc}>
+                      {loc === "all" ? "All Locations" : loc}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-
-
 
           <div className="space-y-12">
             {Object.entries(dropsByCategory).map(([category, drops]) => (
@@ -137,6 +171,10 @@ export default function ExplorePage() {
                                 <div className="text-sm font-medium text-primary">
                                   {drop.price > 0 ? `$${drop.price.toFixed(2)}` : 'Free'}
                                 </div>
+                              </div>
+                              <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="w-3 h-3" />
+                                <span>{drop.location || "Online"}</span>
                               </div>
                             </div>
                           </Card>

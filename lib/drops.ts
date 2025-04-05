@@ -11,6 +11,7 @@ export type Drop = {
     price: number
     ageRestriction: number | null
     creator: string
+    location: string
   }
 
 export type MyDrop = {

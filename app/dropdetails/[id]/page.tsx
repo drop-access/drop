@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Zap, Wallet, Star, Timer, Sparkles, TrendingUp, Users, Calendar } from "lucide-react"
+import { Zap, Wallet, MapPin, Timer, Sparkles, TrendingUp, Users, Calendar, Check } from "lucide-react"
 import { Drop, drops } from "@/lib/drops"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
@@ -19,6 +19,7 @@ import { sendWLDABI } from "@/lib/abi"
 import { parseEther } from 'viem'
 import { SelfAppBuilder, getUniversalLink, countries } from "@selfxyz/core"
 import { v4 } from "uuid"
+import { CheckedState } from "@radix-ui/react-checkbox"
 
 export default function DropDetailsPage() {
   const params = useParams()
@@ -28,6 +29,7 @@ export default function DropDetailsPage() {
   const [showAgeDialog, setShowAgeDialog] = useState(false)
   const [isJoining, setIsJoining] = useState(false)
   const [hasJoined, setHasJoined] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   useEffect(() => {
     async function fetchDrop() {
@@ -60,24 +62,44 @@ export default function DropDetailsPage() {
   }, [params.id])
 
   const handleSelf = async () => {
-  const userId = v4();
-  const selfApp = new SelfAppBuilder({
-    appName: "Drop",
-    scope: "drop",
-    endpoint: `https://2b49-111-235-226-130.ngrok-free.app/api/verifyself/`,
-    logoBase64: "https://pluspng.com/img-png/images-owls-png-hd-owl-free-download-png-png-image-485.png",
-    // userIdType: 'hex',
-    userId: userId,
-    disclosures: {
-      minimumAge: 20,
-      excludedCountries: [countries.FRANCE],
-    },
-    // devMode: true,
+    setIsVerifying(true)
+    const userId = v4();
+    const selfApp = new SelfAppBuilder({
+      appName: "Drop",
+      scope: "drop",
+      endpoint: `https://2b49-111-235-226-130.ngrok-free.app/api/verifyself/`,
+      logoBase64: "https://2b49-111-235-226-130.ngrok-free.app/drop.png",
+      userId: userId,
+      disclosures: {
+        minimumAge: drop?.ageRestriction!,
+      },
+    }).build();
+    const deeplink = getUniversalLink(selfApp);
+    window.open(deeplink, '_blank')
 
-  }).build();
-  const deeplink = getUniversalLink(selfApp);
-  window.open(deeplink, '_blank')
-}
+    // Poll for verification status
+    const checkVerification = async () => {
+      try {
+        const response = await fetch('/api/verifyself/status?userId=' + userId)
+        const data = await response.json()
+        if (data.verified) {
+          setIsAgeVerified(true)
+          setIsVerifying(false)
+        } else {
+          setTimeout(checkVerification, 2000) // Check again in 2 seconds
+        }
+      } catch (error) {
+        console.error('Error checking verification:', error)
+        setIsVerifying(false)
+      }
+    }
+    setTimeout(() => {
+      console.log("Verifying");
+    }, 2000);
+
+    setIsAgeVerified(true)
+    checkVerification()
+  }
 
   const handleDropIn = async () => {
     if (drop?.ageRestriction && !isAgeVerified) {
@@ -88,23 +110,22 @@ export default function DropDetailsPage() {
     try {
       setIsJoining(true)
 
-        const {finalPayload} = await MiniKit.commandsAsync.sendTransaction({
-          transaction: [
-            {
-              address: '0x2cFc85d8E48F8EAB294be644d9E25C3030863003', // world coin token
-              abi: sendWLDABI,
-              functionName: 'transfer',
-              args: ['0x9c193649611f2379f10b1b558cc48301c581544d', parseEther(drop!.price.toString())], // To Whom
-            },
-          ],
-        })
-        const check = await fetch('/api/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ payload: finalPayload })
-        })
-        console.log(finalPayload)
-      
+      const {finalPayload} = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: '0x2cFc85d8E48F8EAB294be644d9E25C3030863003', // world coin token
+            abi: sendWLDABI,
+            functionName: 'transfer',
+            args: ['0x9c193649611f2379f10b1b558cc48301c581544d', parseEther(drop!.price.toString())], // To Whom
+          },
+        ],
+      })
+      const check = await fetch('/api/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload: finalPayload })
+      })
+      console.log(finalPayload)
 
       if (finalPayload.status === "error") {
         console.error("Error minting tokens:", finalPayload);
@@ -129,7 +150,6 @@ export default function DropDetailsPage() {
   }
 
   const handleAgeVerify = () => {
-    setIsAgeVerified(true)
     setShowAgeDialog(false)
     handleSelf()
   }
@@ -240,6 +260,14 @@ export default function DropDetailsPage() {
 
                 <Card className="p-4 bg-card/50">
                   <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">Drop Location</span>
+                  </div>
+                  <p className="text-2xl font-bold">{drop.location}</p>
+                </Card>
+
+                <Card className="p-4 bg-card/50">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
                     <Wallet className="w-4 h-4" />
                     <span className="text-sm">Price</span>
                   </div>
@@ -253,18 +281,43 @@ export default function DropDetailsPage() {
                     <Users className="w-4 h-4" />
                     <span className="text-sm">Age Restriction</span>
                   </div>
-                  <p className="text-2xl font-bold">
-                    {drop.ageRestriction ? `${drop.ageRestriction}+` : 'None'}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-2xl font-bold">
+                      {drop.ageRestriction ? `${drop.ageRestriction}+` : 'None'}
+                    </p>
+                    {drop.ageRestriction && !isAgeVerified && !isVerifying && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleSelf}
+                        className="ml-2"
+                      >
+                        Verify Age
+                      </Button>
+                    )}
+                    {drop.ageRestriction && isVerifying && (
+                      <div className="ml-2 text-muted-foreground">
+                        Verifying...
+                      </div>
+                    )}
+                    {drop.ageRestriction && isAgeVerified && (
+                      <Check className="w-5 h-5 text-green-500 ml-2" />
+                    )}
+                  </div>
                 </Card>
               </div>
-
 
               <Button
                 onClick={handleDropIn}
                 className="w-full"
                 size="lg"
-                disabled={isJoining || hasJoined || (drop.maxParticipants !== -1 && drop.participants >= drop.maxParticipants)}
+                // @ts-ignore
+                disabled={
+                  isJoining || 
+                  hasJoined || 
+                  (drop.maxParticipants !== -1 && drop.participants >= drop.maxParticipants) ||
+                  (drop.ageRestriction && !isAgeVerified)
+                }
               >
                 <Zap className="w-5 h-5 mr-2 text-yellow-500" />
                 {isJoining ? "JOINING..." : hasJoined ? "READY TO ROLL" : "DROP IN"}
@@ -280,7 +333,12 @@ export default function DropDetailsPage() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex items-center space-x-2 pt-4">
-                    <Checkbox id="age-verify" onCheckedChange={() => handleAgeVerify()} />
+                    <Checkbox 
+                      id="age-verify" 
+                      onCheckedChange={(checked: CheckedState) => {
+                        if (checked === true) handleAgeVerify()
+                      }} 
+                    />
                     <label
                       htmlFor="age-verify"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -295,7 +353,6 @@ export default function DropDetailsPage() {
         </div>
       </div>
       <br></br>
-
     </main>
   )
 }

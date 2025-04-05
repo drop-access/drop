@@ -20,7 +20,7 @@ export async function POST(request: Request) {
             'https://2b49-111-235-226-130.ngrok-free.app/api/verifyself',
             'uuid',
             true,
-        ).setMinimumAge(20).excludeCountries(countries.FRANCE);
+        ).setMinimumAge(18);
 
 
         const result = await configuredVerifier.verify(proof, publicSignals);

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Calendar as CalendarIcon, ImagePlus, Sparkles } from "lucide-react"
+import { Calendar as CalendarIcon, ImagePlus, Sparkles, MapPin } from "lucide-react"
 import { useState, useRef } from "react"
 import {
   Select,
@@ -33,6 +33,7 @@ export default function CreatePage() {
   const [imageUrl, setImageUrl] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [category, setCategory] = useState("Uncategorized")
+  const [location, setLocation] = useState("")
   const [dropDate, setDropDate] = useState<Date>()
   const [maxParticipants, setMaxParticipants] = useState<number>(100)
   const [isUnlimited, setIsUnlimited] = useState(false)
@@ -118,6 +119,7 @@ export default function CreatePage() {
         description,
         image: imageUrl,
         category,
+        location,
         time: dropDate ? format(dropDate, "PPP") : "Soon",
         maxParticipants: isUnlimited ? -1 : maxParticipants,
         price,
@@ -170,6 +172,19 @@ export default function CreatePage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Location</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., New York City or Online"
+                className="pl-9"
+              />
+            </div>
           </div>
 
           <div>

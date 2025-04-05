@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     maxParticipants: body.maxParticipants,
     price: body.price || 0,
     ageRestriction: body.ageRestriction || null,
-    creator: body.creator
+    creator: body.creator,
+    location: body.location || "Online"
   }
 
   // Add to drops array
@@ -37,4 +38,3 @@ export async function POST(req: NextRequest) {
   console.log({ drops, myDrops })
   return NextResponse.json({ status: 200, drop: newDrop })
 }
-
