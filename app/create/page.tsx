@@ -8,12 +8,15 @@ import { Calendar, ImagePlus, Sparkles } from "lucide-react"
 import { useState } from "react"
 import { MiniKit, VerifyCommandInput, VerificationLevel, ISuccessResult } from '@worldcoin/minikit-js'
 import { useRouter } from "next/navigation"
+import {getUniversalLink, SelfAppBuilder, countries } from '@selfxyz/core';
+import { v4 } from 'uuid';
+import { deepEqual } from "node:assert"
 
 
 
 export default function CreatePage() {
   const [isUploading, setIsUploading] = useState(false)
-  const [isVerified, setIsVerified] =  useState(false)
+  const [isVerified, setIsVerified] = useState(false)
   const router = useRouter();
 
   const verifyPayload: VerifyCommandInput = {
@@ -23,14 +26,14 @@ export default function CreatePage() {
 
   const handleVerify = async () => {
     try {
-    if (!MiniKit.isInstalled()) {
-      return
-    }
-    const {finalPayload} = await MiniKit.commandsAsync.verify(verifyPayload)
+      if (!MiniKit.isInstalled()) {
+        return
+      }
+      const { finalPayload } = await MiniKit.commandsAsync.verify(verifyPayload)
       if (finalPayload.status === 'error') {
         return console.log('Error payload', finalPayload)
       }
-  
+
       // Verify the proof in the backend
       const verifyResponse = await fetch('/api/verify', {
         method: 'POST',
@@ -38,21 +41,41 @@ export default function CreatePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-        payload: finalPayload as ISuccessResult, 
-        action: 'create-drop',
-      }),
-    })
+          payload: finalPayload as ISuccessResult,
+          action: 'create-drop',
+        }),
+      })
 
-    const verifyResponseJson = await verifyResponse.json()
+      const verifyResponseJson = await verifyResponse.json()
 
-    if (verifyResponseJson.status === 200) {
-      console.log('Verification success!')
-      setIsVerified(true)
+      if (verifyResponseJson.status === 200) {
+        console.log('Verification success!')
+        setIsVerified(true)
+      }
     }
-  } 
-  catch (error) {
-    console.log(error)
+    catch (error) {
+      console.log(error)
+    }
   }
+
+  const handleSelf = async () => {
+    const userId = v4();
+    const selfApp = new SelfAppBuilder({
+      appName: "Drop",
+      scope: "drop",
+      endpoint: `https://3c98-111-235-226-130.ngrok-free.app/api/verifyself/`,
+      logoBase64: "https://pluspng.com/img-png/images-owls-png-hd-owl-free-download-png-png-image-485.png",
+      // userIdType: 'hex',
+      userId: userId,
+      disclosures: {
+        minimumAge: 20,
+        excludedCountries: [countries.FRANCE],
+      },
+      // devMode: true,
+
+    }).build();
+    const deeplink = getUniversalLink(selfApp);
+    window.open(deeplink, '_blank')
   }
 
   return (
@@ -77,8 +100,8 @@ export default function CreatePage() {
               <label className="block text-sm font-medium mb-2 text-foreground/80">
                 Drop Title
               </label>
-              <Input 
-                placeholder="e.g., Limited Edition Sneakers" 
+              <Input
+                placeholder="e.g., Limited Edition Sneakers"
                 className="bg-background/50 border-primary/10 focus-visible:ring-primary/20"
               />
             </div>
@@ -87,8 +110,8 @@ export default function CreatePage() {
               <label className="block text-sm font-medium mb-2 text-foreground/80">
                 Description
               </label>
-              <Textarea 
-                placeholder="Describe your drop in detail..." 
+              <Textarea
+                placeholder="Describe your drop in detail..."
                 className="bg-background/50 border-primary/10 focus-visible:ring-primary/20 min-h-[120px]"
               />
             </div>
@@ -97,8 +120,8 @@ export default function CreatePage() {
               <label className="block text-sm font-medium mb-2 text-foreground/80">
                 Cover Image
               </label>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full h-32 border-dashed border-primary/20 bg-background/50 hover:bg-background/80"
                 onClick={() => setIsUploading(true)}
               >
@@ -115,8 +138,8 @@ export default function CreatePage() {
               <label className="block text-sm font-medium mb-2 text-foreground/80">
                 Drop Date
               </label>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start text-muted-foreground bg-background/50 border-primary/20"
               >
                 <Calendar className="mr-2 h-4 w-4" />
@@ -124,17 +147,24 @@ export default function CreatePage() {
               </Button>
             </div>
 
-            {isVerified ? 'verified': 'not verified'}
+            {isVerified ? 'verified' : 'not verified'}
 
-            <Button onClick={async() => {
- console.log("dhf")
-              if(!isVerified) {
-              await handleVerify()
+            <Button onClick={async () => {
+              if (!isVerified) {
+                await handleVerify()
               }
             }} className="w-full bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
               <Sparkles className="w-4 h-4 mr-2 group-hover:text-primary transition-colors" />
               Create Drop
             </Button>
+
+            <Button onClick={async () => {
+              handleSelf()
+            }} className="w-full bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
+              <Sparkles className="w-4 h-4 mr-2 group-hover:text-primary transition-colors" />
+              Check Self
+            </Button>
+
           </div>
         </Card>
       </div>
