@@ -7,12 +7,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar, ImagePlus, Sparkles } from "lucide-react"
 import { useState } from "react"
 import { MiniKit, VerifyCommandInput, VerificationLevel, ISuccessResult } from '@worldcoin/minikit-js'
+import { useRouter } from "next/navigation"
 
 
 
 export default function CreatePage() {
   const [isUploading, setIsUploading] = useState(false)
   const [isVerified, setIsVerified] =  useState(false)
+  const router = useRouter();
 
   const verifyPayload: VerifyCommandInput = {
     action: 'create-drop',
@@ -20,6 +22,7 @@ export default function CreatePage() {
   }
 
   const handleVerify = async () => {
+    try {
     if (!MiniKit.isInstalled()) {
       return
     }
@@ -39,12 +42,17 @@ export default function CreatePage() {
         action: 'create-drop',
       }),
     })
-  
+
     const verifyResponseJson = await verifyResponse.json()
+
     if (verifyResponseJson.status === 200) {
       console.log('Verification success!')
       setIsVerified(true)
     }
+  } 
+  catch (error) {
+    console.log(error)
+  }
   }
 
   return (
@@ -116,9 +124,12 @@ export default function CreatePage() {
               </Button>
             </div>
 
-            <Button onClick={() => {
+            {isVerified ? 'verified': 'not verified'}
+
+            <Button onClick={async() => {
+ console.log("dhf")
               if(!isVerified) {
-              handleVerify()
+              await handleVerify()
               }
             }} className="w-full bg-primary/10 hover:bg-primary/20 backdrop-blur-sm border border-primary/20 group">
               <Sparkles className="w-4 h-4 mr-2 group-hover:text-primary transition-colors" />

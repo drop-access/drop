@@ -8,8 +8,9 @@ import MiniKitProvider from '@/components/minikit-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Drop | Exclusive Drops for Events & Products',
+  title: 'Drop | Exclusive Drops',
   description: 'Join exclusive drops for events, sneakers, and more.',
+  icons: ['/drop.png']
 };
 
 export default function RootLayout({
@@ -19,6 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+
       <MiniKitProvider>
       <body className={`${inter.className} overflow-x-hidden`}>
         <ThemeProvider
