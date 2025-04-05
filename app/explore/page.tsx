@@ -95,7 +95,7 @@ export default function ExplorePage() {
                   <CarouselContent>
                     {drops.map((drop) => (
                       <CarouselItem key={drop.id} className="md:basis-1/2">
-                        <Link href={`/drops/${drop.id}`}>
+                        <Link href={`/dropdetails/${drop.id}`}>
                           <Card className="group overflow-hidden bg-card/50 backdrop-blur-sm border-primary/10 event hover:border-primary/30 transition-all duration-300">
                             <div className="aspect-[16/9] relative overflow-hidden">
                               <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-transparent z-10" />
@@ -129,9 +129,14 @@ export default function ExplorePage() {
                                 </h3>
                                 <Sparkles className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
                               </div>
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <Star className="h-4 w-4" />
-                                <span>{drop.participants.toLocaleString()} interested</span>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Star className="h-4 w-4" />
+                                  <span>{drop.participants.toLocaleString()} going</span>
+                                </div>
+                                <div className="text-sm font-medium text-primary">
+                                  {drop.price > 0 ? `$${drop.price.toFixed(2)}` : 'Free'}
+                                </div>
                               </div>
                             </div>
                           </Card>

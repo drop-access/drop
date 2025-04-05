@@ -36,6 +36,8 @@ export default function CreatePage() {
   const [dropDate, setDropDate] = useState<Date>()
   const [maxParticipants, setMaxParticipants] = useState<number>(100)
   const [isUnlimited, setIsUnlimited] = useState(false)
+  const [price, setPrice] = useState<number>(0)
+  const [ageRestriction, setAgeRestriction] = useState<number | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
@@ -118,6 +120,9 @@ export default function CreatePage() {
         category,
         time: dropDate ? format(dropDate, "PPP") : "Soon",
         maxParticipants: isUnlimited ? -1 : maxParticipants,
+        price,
+        ageRestriction,
+        creator: MiniKit.user!.username!
       }),
     })
 
@@ -216,6 +221,46 @@ export default function CreatePage() {
                   onChange={(e) => setMaxParticipants(parseInt(e.target.value))}
                   min={1}
                   placeholder="Enter maximum number of participants"
+                />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Price (in USD)</label>
+            <Input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(parseFloat(e.target.value))}
+              min={0}
+              step={0.01}
+              placeholder="Enter price"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-2 block">Age Restriction</label>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="hasAgeRestriction"
+                  checked={ageRestriction !== null}
+                  onCheckedChange={(checked) => setAgeRestriction(checked ? 18 : null)}
+                />
+                <label
+                  htmlFor="hasAgeRestriction"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Has age restriction
+                </label>
+              </div>
+              {ageRestriction !== null && (
+                <Input
+                  type="number"
+                  value={ageRestriction}
+                  onChange={(e) => setAgeRestriction(parseInt(e.target.value))}
+                  min={13}
+                  placeholder="Enter minimum age"
                 />
               )}
             </div>
